@@ -23,13 +23,13 @@ defined('_JEXEC') or die('Restricted access');
 
 class PlgSystemEasyFrontendSeo extends JPlugin
 {
-    protected $_db;
-    protected $_url;
-    protected $_url_old;
-    protected $_url_tostring;
-    protected $_allowed_user_groups;
-    protected $_session;
-    protected $_request;
+    protected $db;
+    protected $url;
+    protected $url_old;
+    protected $url_tostring;
+    protected $allowed_user_groups;
+    protected $session;
+    protected $request;
 
     function __construct(&$subject, $config)
     {
@@ -46,13 +46,13 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     public function onAfterInitialise()
     {
-        $this->set('_allowed_user_groups', $this->allowedUserGroups());
-        $this->set('_db', JFactory::getDbo());
-        $this->set('_session', JFactory::getSession());
-        $this->set('_request', JFactory::getApplication()->input);
+        $this->set('allowed_user_groups', $this->allowedUserGroups());
+        $this->set('db', JFactory::getDbo());
+        $this->set('session', JFactory::getSession());
+        $this->set('request', JFactory::getApplication()->input);
 
         $uri = JUri::getInstance();
-        $this->set('_url_tostring', $uri->toString());
+        $this->set('url_tostring', $uri->toString());
 
         // Compatibility Mode
         $compatibility = $this->params->get('compatibility');
@@ -67,44 +67,44 @@ class PlgSystemEasyFrontendSeo extends JPlugin
         {
             if(empty($relative_urls))
             {
-                $this->set('_url', $internal_url);
-                $this->set('_url_old', array($this->_url_tostring, str_replace(JURI::base(), '', $this->_url_tostring), str_replace(JURI::base(), '', $internal_url)));
+                $this->set('url', $internal_url);
+                $this->set('url_old', array($this->url_tostring, str_replace(JURI::base(), '', $this->url_tostring), str_replace(JURI::base(), '', $internal_url)));
             }
             else
             {
-                $this->set('_url', str_replace(JURI::base(), '', $internal_url));
-                $this->set('_url_old', array($this->_url_tostring, str_replace(JURI::base(), '', $this->_url_tostring), $internal_url));
+                $this->set('url', str_replace(JURI::base(), '', $internal_url));
+                $this->set('url_old', array($this->url_tostring, str_replace(JURI::base(), '', $this->url_tostring), $internal_url));
             }
         }
         elseif($compatibility == 1)
         {
             if(empty($relative_urls))
             {
-                $this->set('_url', $this->_url_tostring);
-                $this->set('_url_old', array($internal_url, str_replace(JURI::base(), '', $internal_url), str_replace(JURI::base(), '', $this->_url_tostring)));
+                $this->set('url', $this->url_tostring);
+                $this->set('url_old', array($internal_url, str_replace(JURI::base(), '', $internal_url), str_replace(JURI::base(), '', $this->url_tostring)));
             }
             else
             {
-                $this->set('_url', str_replace(JURI::base(), '', $this->_url_tostring));
-                $this->set('_url_old', array($internal_url, str_replace(JURI::base(), '', $internal_url), $this->_url_tostring));
+                $this->set('url', str_replace(JURI::base(), '', $this->url_tostring));
+                $this->set('url_old', array($internal_url, str_replace(JURI::base(), '', $internal_url), $this->url_tostring));
             }
         }
         elseif($compatibility == 2)
         {
-            $this->set('_url', $this->_url_tostring);
+            $this->set('url', $this->url_tostring);
         }
 
         // Save data to session because some components do a redirection and entered data get lost
-        $data_saved_to_session = $this->_session->get('save_data_to_session', null, 'easyfrontendseo');
+        $data_saved_to_session = $this->session->get('save_data_to_session', null, 'easyfrontendseo');
 
-        if($this->_request->get('easyfrontendseo') AND $this->_allowed_user_groups == true AND empty($data_saved_to_session))
+        if($this->request->get('easyfrontendseo') AND $this->allowed_user_groups == true AND empty($data_saved_to_session))
         {
             $this->saveDataToSession();
         }
 
         if($this->params->get('update') == 1 AND $compatibility != 2)
         {
-            $this->updateDatabase($this->_url, $this->_url_old);
+            $this->updateDatabase($this->url, $this->url_old);
         }
     }
 
@@ -116,23 +116,23 @@ class PlgSystemEasyFrontendSeo extends JPlugin
         $document = JFactory::getDocument();
         $head = $document->getHeadData();
 
-        $data_saved_to_session = $this->_session->get('save_data_to_session', null, 'easyfrontendseo');
+        $data_saved_to_session = $this->session->get('save_data_to_session', null, 'easyfrontendseo');
 
-        if(!empty($data_saved_to_session) AND $this->_allowed_user_groups == true)
+        if(!empty($data_saved_to_session) AND $this->allowed_user_groups == true)
         {
-            $delete = $this->_session->get('delete', null, 'easyfrontendseo');
+            $delete = $this->session->get('delete', null, 'easyfrontendseo');
 
             if(!empty($delete) AND $this->params->get('field_delete') == 1)
             {
-                $query = "DELETE FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($this->_url);
-                $this->_db->setQuery($query);
-                $this->_db->execute();
+                $query = "DELETE FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($this->url);
+                $this->db->setQuery($query);
+                $this->db->execute();
             }
             else
             {
-                $query = "SELECT * FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($this->_url);
-                $this->_db->setQuery($query);
-                $row = $this->_db->loadAssoc();
+                $query = "SELECT * FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($this->url);
+                $this->db->setQuery($query);
+                $row = $this->db->loadAssoc();
 
                 if($this->params->get('field_title') == 0 OR $this->params->get('field_title') == 2)
                 {
@@ -151,7 +151,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 }
                 else
                 {
-                    $title = $this->_session->get('title', null, 'easyfrontendseo');
+                    $title = $this->session->get('title', null, 'easyfrontendseo');
 
                     $characters_title = $this->getCharactersLength('characters_title');
 
@@ -178,7 +178,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 }
                 else
                 {
-                    $description = $this->_session->get('description', null, 'easyfrontendseo');
+                    $description = $this->session->get('description', null, 'easyfrontendseo');
 
                     $characters_description = $this->getCharactersLength('characters_description');
 
@@ -205,7 +205,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 }
                 else
                 {
-                    $keywords = $this->_session->get('keywords', null, 'easyfrontendseo');
+                    $keywords = $this->session->get('keywords', null, 'easyfrontendseo');
                 }
 
                 if($this->params->get('field_generator') == 0 OR $this->params->get('field_generator') == 2)
@@ -228,7 +228,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 }
                 else
                 {
-                    $generator = $this->_session->get('generator', null, 'easyfrontendseo');
+                    $generator = $this->session->get('generator', null, 'easyfrontendseo');
                 }
 
                 if($this->params->get('field_robots') == 0 OR $this->params->get('field_robots') == 2)
@@ -251,20 +251,20 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 }
                 else
                 {
-                    $robots = $this->_session->get('robots', null, 'easyfrontendseo');
+                    $robots = $this->session->get('robots', null, 'easyfrontendseo');
                 }
 
                 if(empty($row))
                 {
-                    $query = "INSERT INTO ".$this->_db->quoteName('#__plg_easyfrontendseo')." (".$this->_db->quoteName('url').", ".$this->_db->quoteName('title').", ".$this->_db->quoteName('description').", ".$this->_db->quoteName('keywords').", ".$this->_db->quoteName('generator').", ".$this->_db->quoteName('robots').") VALUES (".$this->_db->quote($this->_url).", ".$this->_db->quote($title).", ".$this->_db->quote($description).", ".$this->_db->quote($keywords).", ".$this->_db->quote($generator).", ".$this->_db->quote($robots).")";
-                    $this->_db->setQuery($query);
-                    $this->_db->execute();
+                    $query = "INSERT INTO ".$this->db->quoteName('#__plg_easyfrontendseo')." (".$this->db->quoteName('url').", ".$this->db->quoteName('title').", ".$this->db->quoteName('description').", ".$this->db->quoteName('keywords').", ".$this->db->quoteName('generator').", ".$this->db->quoteName('robots').") VALUES (".$this->db->quote($this->url).", ".$this->db->quote($title).", ".$this->db->quote($description).", ".$this->db->quote($keywords).", ".$this->db->quote($generator).", ".$this->db->quote($robots).")";
+                    $this->db->setQuery($query);
+                    $this->db->execute();
                 }
                 else
                 {
-                    $query = "UPDATE ".$this->_db->quoteName('#__plg_easyfrontendseo')." SET ".$this->_db->quoteName('title')." = ".$this->_db->quote($title).", ".$this->_db->quoteName('description')." = ".$this->_db->quote($description).", ".$this->_db->quoteName('keywords')." = ".$this->_db->quote($keywords).", ".$this->_db->quoteName('generator')." = ".$this->_db->quote($generator).", ".$this->_db->quoteName('robots')." = ".$this->_db->quote($robots)." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($this->_url);
-                    $this->_db->setQuery($query);
-                    $this->_db->execute();
+                    $query = "UPDATE ".$this->db->quoteName('#__plg_easyfrontendseo')." SET ".$this->db->quoteName('title')." = ".$this->db->quote($title).", ".$this->db->quoteName('description')." = ".$this->db->quote($description).", ".$this->db->quoteName('keywords')." = ".$this->db->quote($keywords).", ".$this->db->quoteName('generator')." = ".$this->db->quote($generator).", ".$this->db->quoteName('robots')." = ".$this->db->quote($robots)." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($this->url);
+                    $this->db->setQuery($query);
+                    $this->db->execute();
                 }
 
                 // Save data to core tables
@@ -272,7 +272,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 {
                     if($this->params->get('save_data_table_content') == 1)
                     {
-                        if($this->_request->get('option') == 'com_content' AND $this->_request->get('view') == 'article')
+                        if($this->request->get('option') == 'com_content' AND $this->request->get('view') == 'article')
                         {
                             $this->saveDataToTableContent($description, $keywords);
                         }
@@ -280,7 +280,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
 
                     if($this->params->get('save_data_table_menu') > 0)
                     {
-                        if($this->_request->get('Itemid'))
+                        if($this->request->get('Itemid'))
                         {
                             $this->saveDataToTableMenu($title, $description, $keywords);
                         }
@@ -292,9 +292,9 @@ class PlgSystemEasyFrontendSeo extends JPlugin
             $this->deleteDataFromSession();
         }
 
-        $query = "SELECT * FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($this->_url);
-        $this->_db->setQuery($query);
-        $metadata = $this->_db->loadAssoc();
+        $query = "SELECT * FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($this->url);
+        $this->db->setQuery($query);
+        $metadata = $this->db->loadAssoc();
 
         if(!empty($metadata))
         {
@@ -329,7 +329,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
         {
             if(empty($metadata['title']))
             {
-                $global_title = preg_replace(array('@\[S\]@', '@\[D\]@'), array(JFactory::getConfig()->get('sitename'), $head['title']), $this->params->get('global_title'));
+                $global_title = preg_replace(array('@\[S\]@', '@\[D\]@', '@\[Y\]@'), array(JFactory::getConfig()->get('sitename'), $head['title'], date('Y')), $this->params->get('global_title'));
 
                 $document->setTitle($global_title);
             }
@@ -388,47 +388,49 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                 // Reload the head data because they could be updated by the automatic mode
                 $head = $document->getHeadData();
 
-                $query = "INSERT INTO ".$this->_db->quoteName('#__plg_easyfrontendseo')." (".$this->_db->quoteName('url').", ".$this->_db->quoteName('title').", ".$this->_db->quoteName('description').", ".$this->_db->quoteName('keywords').", ".$this->_db->quoteName('generator').", ".$this->_db->quoteName('robots').") VALUES (".$this->_db->quote($this->_url).", ".$this->_db->quote($head['title']).", ".$this->_db->quote($head['description']).", ".$this->_db->quote($head['metaTags']['standard']['keywords']).", ".$this->_db->quote($document->getGenerator()).", ".$this->_db->quote($head['metaTags']['standard']['robots']).")";
-                $this->_db->setQuery($query);
-                $this->_db->execute();
+                $query = "INSERT INTO ".$this->db->quoteName('#__plg_easyfrontendseo')." (".$this->db->quoteName('url').", ".$this->db->quoteName('title').", ".$this->db->quoteName('description').", ".$this->db->quoteName('keywords').", ".$this->db->quoteName('generator').", ".$this->db->quoteName('robots').") VALUES (".$this->db->quote($this->url).", ".$this->db->quote($head['title']).", ".$this->db->quote($head['description']).", ".$this->db->quote($head['metaTags']['standard']['keywords']).", ".$this->db->quote($document->getGenerator()).", ".$this->db->quote($head['metaTags']['standard']['robots']).")";
+                $this->db->setQuery($query);
+                $this->db->execute();
             }
         }
 
-        if($this->_allowed_user_groups == true)
+        if($this->allowed_user_groups == true)
         {
-            $document->addStyleSheet('plugins/system/easyfrontendseo/easyfrontendseo.css', 'text/css');
+            $document->addStyleSheet('plugins/system/easyfrontendseo/assets/css/easyfrontendseo.css', 'text/css');
 
             JHtml::_('behavior.framework');
 
             if($this->params->get('style') == 1)
             {
-                $document->addScript('plugins/system/easyfrontendseo/simplemodal.js', 'text/javascript');
-                $document->addStyleSheet('plugins/system/easyfrontendseo/simplemodal.css', 'text/css');
+                $document->addScript('plugins/system/easyfrontendseo/assets/js/simplemodal.js', 'text/javascript');
+                $document->addStyleSheet('plugins/system/easyfrontendseo/assets/css/simplemodal.css', 'text/css');
             }
 
             if($this->params->get('word_count') == 1)
             {
-                $document->addScript('plugins/system/easyfrontendseo/wordcount.js', 'text/javascript');
+                $document->addScript('plugins/system/easyfrontendseo/assets/js/wordcount.js', 'text/javascript');
             }
-
-            // Load the needed JavaScript for the output in the head section
-            JHtml::_('behavior.framework', 'more');
 
             $js = '';
 
             if($this->params->get('style') == 0)
             {
-                $js .= 'window.addEvent("domready", function(e){
-                            var mySlide = new Fx.Slide("easyfrontendseo").hide();
-                            $("toggle").addEvent("click", function(e){
-                                e = new Event(e);
-                                mySlide.toggle();
-                                e.stop();
+                // Load the needed JavaScript for the output in the head section
+                JHtml::_('jquery.framework');
+
+                $js .= 'jQuery(document).ready(function()
+                        {
+                            jQuery("#easyfrontendseo").hide();
+                            jQuery("#toggle").click(function() {
+                                jQuery("#easyfrontendseo").slideToggle("slow");
                             });
                         });';
             }
             elseif($this->params->get('style') == 1)
             {
+                // Load the needed JavaScript for the output in the head section
+                JHtml::_('behavior.framework', 'more');
+
                 $head = $this->currentHeadData($document);
 
                 $js .= "window.addEvent('domready', function(e){
@@ -454,7 +456,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     public function onAfterRender()
     {
-        if($this->_allowed_user_groups == true)
+        if($this->allowed_user_groups == true)
         {
             $document = JFactory::getDocument();
 
@@ -548,8 +550,8 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function buildButtons($title, $description, $keywords, $generator, $robots)
     {
-        $check = JURI::base().'plugins/system/easyfrontendseo/check.png';
-        $cross = JURI::base().'plugins/system/easyfrontendseo/cross.png';
+        $check = JURI::base().'plugins/system/easyfrontendseo/assets/images/check.png';
+        $cross = JURI::base().'plugins/system/easyfrontendseo/assets/images/cross.png';
 
         $metacheck = '';
 
@@ -657,7 +659,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
             $output .= '<h1>Easy Frontend SEO</h1>';
         }
 
-        $output .= '<form action="'.$this->_url_tostring.'" method="post">';
+        $output .= '<form action="'.$this->url_tostring.'" method="post">';
 
         if($this->params->get('field_title') == 1)
         {
@@ -902,39 +904,39 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function saveDataToSession()
     {
-        if($this->_request->get('delete'))
+        if($this->request->get('delete'))
         {
-            $this->_session->set('delete', $this->_request->get('delete'), 'easyfrontendseo');
+            $this->session->set('delete', $this->request->get('delete'), 'easyfrontendseo');
         }
         else
         {
-            if($this->_request->get('title', '', 'STRING'))
+            if($this->request->get('title', '', 'STRING'))
             {
-                $this->_session->set('title', $this->_request->get('title', '', 'STRING'), 'easyfrontendseo');
+                $this->session->set('title', $this->request->get('title', '', 'STRING'), 'easyfrontendseo');
             }
 
-            if($this->_request->get('description', '', 'STRING'))
+            if($this->request->get('description', '', 'STRING'))
             {
-                $this->_session->set('description', stripslashes(preg_replace('@\s+(\r\n|\r|\n)@', ' ', $this->_request->get('description', '', 'STRING'))), 'easyfrontendseo');
+                $this->session->set('description', stripslashes(preg_replace('@\s+(\r\n|\r|\n)@', ' ', $this->request->get('description', '', 'STRING'))), 'easyfrontendseo');
             }
 
-            if($this->_request->get('keywords', '', 'STRING'))
+            if($this->request->get('keywords', '', 'STRING'))
             {
-                $this->_session->set('keywords', $this->_request->get('keywords', '', 'STRING'), 'easyfrontendseo');
+                $this->session->set('keywords', $this->request->get('keywords', '', 'STRING'), 'easyfrontendseo');
             }
 
-            if($this->_request->get('generator', '', 'STRING'))
+            if($this->request->get('generator', '', 'STRING'))
             {
-                $this->_session->set('generator', $this->_request->get('generator', '', 'STRING'), 'easyfrontendseo');
+                $this->session->set('generator', $this->request->get('generator', '', 'STRING'), 'easyfrontendseo');
             }
 
-            if($this->_request->get('robots', '', 'STRING'))
+            if($this->request->get('robots', '', 'STRING'))
             {
-                $this->_session->set('robots', $this->_request->get('robots', '', 'STRING'), 'easyfrontendseo');
+                $this->session->set('robots', $this->request->get('robots', '', 'STRING'), 'easyfrontendseo');
             }
         }
 
-        $this->_session->set('save_data_to_session', true, 'easyfrontendseo');
+        $this->session->set('save_data_to_session', true, 'easyfrontendseo');
     }
 
     /**
@@ -942,13 +944,13 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function deleteDataFromSession()
     {
-        $this->_session->clear('title', 'easyfrontendseo');
-        $this->_session->clear('description', 'easyfrontendseo');
-        $this->_session->clear('keywords', 'easyfrontendseo');
-        $this->_session->clear('generator', 'easyfrontendseo');
-        $this->_session->clear('robots', 'easyfrontendseo');
-        $this->_session->clear('save_data_to_session', 'easyfrontendseo');
-        $this->_session->clear('delete', 'easyfrontendseo');
+        $this->session->clear('title', 'easyfrontendseo');
+        $this->session->clear('description', 'easyfrontendseo');
+        $this->session->clear('keywords', 'easyfrontendseo');
+        $this->session->clear('generator', 'easyfrontendseo');
+        $this->session->clear('robots', 'easyfrontendseo');
+        $this->session->clear('save_data_to_session', 'easyfrontendseo');
+        $this->session->clear('delete', 'easyfrontendseo');
     }
 
     /**
@@ -985,9 +987,9 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function saveDataToTableContent($description, $keywords)
     {
-        $query = "UPDATE ".$this->_db->quoteName('#__content')." SET ".$this->_db->quoteName('metakey')." = ".$this->_db->quote($keywords).", ".$this->_db->quoteName('metadesc')." = ".$this->_db->quote($description)." WHERE ".$this->_db->quoteName('id')." = ".$this->_db->quote((int)$this->_request->get('id'));
-        $this->_db->setQuery($query);
-        $this->_db->execute();
+        $query = "UPDATE ".$this->db->quoteName('#__content')." SET ".$this->db->quoteName('metakey')." = ".$this->db->quote($keywords).", ".$this->db->quoteName('metadesc')." = ".$this->db->quote($description)." WHERE ".$this->db->quoteName('id')." = ".$this->db->quote((int)$this->request->get('id'));
+        $this->db->setQuery($query);
+        $this->db->execute();
     }
 
     /**
@@ -996,73 +998,47 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      * @param string $title
      * @param string $description
      * @param string $keywords
-     *
-     * TODO Use json_decode and json_encode to get and set the data
      */
     private function saveDataToTableMenu($title, $description, $keywords)
     {
-        $query = "SELECT ".$this->_db->quoteName('params')." FROM ".$this->_db->quoteName('#__menu')." WHERE ".$this->_db->quoteName('id')." = ".$this->_db->quote((int)$this->_request->get('Itemid'));
-        $this->_db->setQuery($query);
-        $menu_params = $this->_db->loadResult();
+        $menu = JMenu::getInstance('site')->getActive();
 
+        // Check whether menu entry for the specific item exists - e.g. do not overwrite data of blog entry
+        foreach($menu->query as $key => $value)
+        {
+            if($value != $this->request->get($key, 'cmd'))
+            {
+                return;
+            }
+        }
+
+        $menu_params_array = JMenu::getInstance('site')->getParams($menu->id)->toArray();
         $save_data_table_menu = $this->params->get('save_data_table_menu');
 
         $title_array = array(1, 4, 5, 7);
         $description_array = array(2, 4, 6, 7);
         $keywords_array = array(3, 5, 6, 7);
 
-        if(!empty($menu_params))
+        if(in_array($save_data_table_menu, $title_array))
         {
-            if(in_array($save_data_table_menu, $title_array))
-            {
-                if(preg_match('@\"page_title\"\:(\"[^\"]*\")@isU', $menu_params, $match_title))
-                {
-                    $page_title = str_replace($match_title[1], '"'.$title.'"', $match_title[0]);
-                    $menu_params = str_replace($match_title[0], $page_title, $menu_params);
-                }
-            }
-
-            if(in_array($save_data_table_menu, $description_array))
-            {
-                if(preg_match('@\"menu-meta_description\"\:(\"[^\"]*\")@isU', $menu_params, $match_description))
-                {
-                    $menu_meta_description = str_replace($match_description[1], '"'.$description.'"', $match_description[0]);
-                    $menu_params = str_replace($match_description[0], $menu_meta_description, $menu_params);
-                }
-            }
-
-            if(in_array($save_data_table_menu, $keywords_array))
-            {
-                if(preg_match('@\"menu-meta_keywords\"\:(\"[^\"]*\")@isU', $menu_params, $match_keywords))
-                {
-                    $menu_meta_keywords = str_replace($match_keywords[1], '"'.$keywords.'"', $match_keywords[0]);
-                    $menu_params = str_replace($match_keywords[0], $menu_meta_keywords, $menu_params);
-                }
-            }
-        }
-        else
-        {
-            if(in_array($save_data_table_menu, $title_array))
-            {
-                $menu_params[] = '"page_title":"'.$title.'"';
-            }
-
-            if(in_array($save_data_table_menu, $description_array))
-            {
-                $menu_params[] = '"menu-meta_description":"'.$description.'"';
-            }
-
-            if(in_array($save_data_table_menu, $keywords_array))
-            {
-                $menu_params[] = '"menu-meta_keywords":"'.$keywords.'"';
-            }
-
-            $menu_params = '{'.implode(',', $menu_params).'}';
+            $menu_params_array['page_title'] = $title;
         }
 
-        $query = "UPDATE ".$this->_db->quoteName('#__menu')." SET ".$this->_db->quoteName('params')." = ".$this->_db->quote($menu_params)." WHERE ".$this->_db->quoteName('id')." = ".$this->_db->quote((int)$this->_request->get('Itemid'));
-        $this->_db->setQuery($query);
-        $this->_db->execute();
+        if(in_array($save_data_table_menu, $description_array))
+        {
+            $menu_params_array['menu-meta_description'] = $description;
+        }
+
+        if(in_array($save_data_table_menu, $keywords_array))
+        {
+            $menu_params_array['menu-meta_keywords'] = $keywords;
+        }
+
+        $menu_params = json_encode($menu_params_array);
+
+        $query = "UPDATE ".$this->db->quoteName('#__menu')." SET ".$this->db->quoteName('params')." = ".$this->db->quote($menu_params)." WHERE ".$this->db->quoteName('id')." = ".$this->db->quote((int)$this->request->get('Itemid'));
+        $this->db->setQuery($query);
+        $this->db->execute();
     }
 
     /**
@@ -1075,15 +1051,15 @@ class PlgSystemEasyFrontendSeo extends JPlugin
 
         if(!empty($content))
         {
-            $option = $this->_request->get('option');
-            $view = $this->_request->get('view');
-            $article_id = $this->_request->get('id', '', 'INT');
+            $option = $this->request->get('option');
+            $view = $this->request->get('view');
+            $article_id = $this->request->get('id', '', 'INT');
 
             if($option == 'com_content' AND $view == 'article' AND !empty($article_id))
             {
-                $query = "SELECT * FROM #__content WHERE id = ".$article_id;
-                $this->_db->setQuery($query);
-                $article = $this->_db->loadAssoc();
+                $model = JModelLegacy::getInstance('Article', 'ContentModel', array('ignore_request' => true));
+                $model->setState('params', JFactory::getApplication()->getParams());
+                $article = (array)$model->getItem($article_id);
 
                 if(!empty($article))
                 {
@@ -1098,8 +1074,9 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                             $content_number_keywords = $this->params->get('com_content_number_keywords');
                             $content_blacklist_keywords = array_map('mb_strtolower', array_map('trim', explode(',', $this->params->get('com_content_blacklist_keywords'))));
                             $content_keywords_whole_text = $article['introtext'].' '.$article['fulltext'];
+                            $content_min_length_keyword = $this->params->get('com_content_min_length_keywords', 3);
 
-                            $document->setMetaData('keywords', $this->automaticReplacementKeywords($content_number_keywords, $content_blacklist_keywords, $content_keywords_whole_text));
+                            $document->setMetaData('keywords', $this->automaticReplacementKeywords($content_number_keywords, $content_blacklist_keywords, $content_keywords_whole_text, $content_min_length_keyword));
                         }
                     }
 
@@ -1155,15 +1132,15 @@ class PlgSystemEasyFrontendSeo extends JPlugin
 
         if(!empty($k2))
         {
-            $option = $this->_request->get('option');
-            $view = $this->_request->get('view');
-            $item_id = $this->_request->get('id', '', 'INT');
+            $option = $this->request->get('option');
+            $view = $this->request->get('view');
+            $item_id = $this->request->get('id', '', 'INT');
 
             if($option == 'com_k2' AND $view == 'item' AND !empty($item_id))
             {
                 $query = "SELECT * FROM #__k2_items WHERE id = ".$item_id;
-                $this->_db->setQuery($query);
-                $item = $this->_db->loadAssoc();
+                $this->db->setQuery($query);
+                $item = $this->db->loadAssoc();
 
                 if(!empty($item))
                 {
@@ -1178,8 +1155,9 @@ class PlgSystemEasyFrontendSeo extends JPlugin
                             $k2_number_keywords = $this->params->get('com_k2_number_keywords');
                             $k2_blacklist_keywords = array_map('mb_strtolower', array_map('trim', explode(',', $this->params->get('com_k2_blacklist_keywords'))));
                             $k2_keywords_whole_text = $item['introtext'].' '.$item['fulltext'];
+                            $k2_min_length_keyword = $this->params->get('com_k2_min_length_keywords', 3);
 
-                            $document->setMetaData('keywords', $this->automaticReplacementKeywords($k2_number_keywords, $k2_blacklist_keywords, $k2_keywords_whole_text));
+                            $document->setMetaData('keywords', $this->automaticReplacementKeywords($k2_number_keywords, $k2_blacklist_keywords, $k2_keywords_whole_text, $k2_min_length_keyword));
                         }
                     }
 
@@ -1240,11 +1218,11 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      *
      * @return string
      */
-    private function automaticReplacementKeywords($number_keywords, $blacklist_keywords, $keywords_whole_text)
+    private function automaticReplacementKeywords($number_keywords, $blacklist_keywords, $keywords_whole_text, $min_length_keyword)
     {
+        $keywords_whole_text = $this->cleanString($keywords_whole_text);
         $pattern = array('@<[^>]+>@U', '@[,;:!"\.\?]@', '@\s+@');
         $content_words_array = explode(' ', preg_replace($pattern, ' ', $keywords_whole_text));
-
         $counter = array();
 
         foreach($content_words_array as $value)
@@ -1253,7 +1231,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
             {
                 $value = mb_strtolower($value);
 
-                if(!in_array($value, $blacklist_keywords))
+                if(!in_array($value, $blacklist_keywords) AND mb_strlen($value) >= $min_length_keyword)
                 {
                     if(isset($counter[$value]))
                     {
@@ -1282,7 +1260,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function automaticReplacementDescription($content_description_whole_text, $content_description_add_dots)
     {
-        $content_description_whole_text = preg_replace('@\s+(\r\n|\r|\n)@', ' ', (trim(htmlspecialchars(strip_tags($content_description_whole_text)))));
+        $content_description_whole_text = $this->cleanString($content_description_whole_text);
         $content_number_description = $this->getCharactersLength('characters_description');
 
         if(strlen($content_description_whole_text) > $content_number_description)
@@ -1317,36 +1295,36 @@ class PlgSystemEasyFrontendSeo extends JPlugin
             if($url != $url_old)
             {
                 // Load saved metadata
-                $query = "SELECT * FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($url_old);
-                $this->_db->setQuery($query);
-                $metadata = $this->_db->loadAssoc();
+                $query = "SELECT * FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($url_old);
+                $this->db->setQuery($query);
+                $metadata = $this->db->loadAssoc();
 
                 if(!empty($metadata))
                 {
                     // Check whether the internal url is already in the database
-                    $query = "SELECT * FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($url);
-                    $this->_db->setQuery($query);
-                    $row = $this->_db->loadRow();
+                    $query = "SELECT * FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($url);
+                    $this->db->setQuery($query);
+                    $row = $this->db->loadRow();
 
                     // Save metadata with internal URL
                     if(!empty($row))
                     {
-                        $query = "UPDATE ".$this->_db->quoteName('#__plg_easyfrontendseo')." SET ".$this->_db->quoteName('title')." = ".$this->_db->quote($metadata['title']).", ".$this->_db->quoteName('description')." = ".$this->_db->quote($metadata['description']).", ".$this->_db->quoteName('keywords')." = ".$this->_db->quote($metadata['keywords']).", ".$this->_db->quoteName('generator')." = ".$this->_db->quote($metadata['generator']).", ".$this->_db->quoteName('robots')." = ".$this->_db->quote($metadata['robots'])." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($url);
-                        $this->_db->setQuery($query);
-                        $this->_db->execute();
+                        $query = "UPDATE ".$this->db->quoteName('#__plg_easyfrontendseo')." SET ".$this->db->quoteName('title')." = ".$this->db->quote($metadata['title']).", ".$this->db->quoteName('description')." = ".$this->db->quote($metadata['description']).", ".$this->db->quoteName('keywords')." = ".$this->db->quote($metadata['keywords']).", ".$this->db->quoteName('generator')." = ".$this->db->quote($metadata['generator']).", ".$this->db->quoteName('robots')." = ".$this->db->quote($metadata['robots'])." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($url);
+                        $this->db->setQuery($query);
+                        $this->db->execute();
                     }
                     else
                     {
                         // New entry in the database
-                        $query = "INSERT INTO ".$this->_db->quoteName('#__plg_easyfrontendseo')." (".$this->_db->quoteName('url').", ".$this->_db->quoteName('title').", ".$this->_db->quoteName('description').", ".$this->_db->quoteName('keywords').", ".$this->_db->quoteName('generator').", ".$this->_db->quoteName('robots').") VALUES (".$this->_db->quote($url).", ".$this->_db->quote($metadata['title']).", ".$this->_db->quote($metadata['description']).", ".$this->_db->quote($metadata['keywords']).", ".$this->_db->quote($metadata['generator']).", ".$this->_db->quote($metadata['robots']).")";
-                        $this->_db->setQuery($query);
-                        $this->_db->execute();
+                        $query = "INSERT INTO ".$this->db->quoteName('#__plg_easyfrontendseo')." (".$this->db->quoteName('url').", ".$this->db->quoteName('title').", ".$this->db->quoteName('description').", ".$this->db->quoteName('keywords').", ".$this->db->quoteName('generator').", ".$this->db->quoteName('robots').") VALUES (".$this->db->quote($url).", ".$this->db->quote($metadata['title']).", ".$this->db->quote($metadata['description']).", ".$this->db->quote($metadata['keywords']).", ".$this->db->quote($metadata['generator']).", ".$this->db->quote($metadata['robots']).")";
+                        $this->db->setQuery($query);
+                        $this->db->execute();
                     }
 
                     // Delete old entry
-                    $query = "DELETE FROM ".$this->_db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->_db->quoteName('url')." = ".$this->_db->quote($url_old);
-                    $this->_db->setQuery($query);
-                    $this->_db->execute();
+                    $query = "DELETE FROM ".$this->db->quoteName('#__plg_easyfrontendseo')." WHERE ".$this->db->quoteName('url')." = ".$this->db->quote($url_old);
+                    $this->db->setQuery($query);
+                    $this->db->execute();
                 }
             }
         }
@@ -1359,7 +1337,7 @@ class PlgSystemEasyFrontendSeo extends JPlugin
      */
     private function excludeComponents()
     {
-        $option = $this->_request->get('option');
+        $option = $this->request->get('option');
         $exclude_components = array_map('trim', explode("\n", $this->params->get('exclude_components')));
 
         if(in_array($option, $exclude_components))
@@ -1368,6 +1346,41 @@ class PlgSystemEasyFrontendSeo extends JPlugin
         }
 
         return false;
+    }
+
+    /**
+     * Prepares and cleans the string
+     *
+     * @param $string
+     *
+     * @return mixed|string
+     */
+    private function cleanString($string)
+    {
+        static $string_clean = false;
+
+        if($string_clean === false)
+        {
+            // Convert quotes and decode HTML entities
+            $search = array(chr(145), chr(146), chr(147), chr(148), chr(151), '&#39;');
+            $replace = array("'", "'", '"', '"', '-', "'", "'");
+            $string = html_entity_decode(str_replace($search, $replace, $string), ENT_COMPAT, 'UTF-8');
+
+            // Strip HTML tags and remove invisible chars
+            $string = preg_replace('@\s+(\r\n|\r|\n|\t)@', ' ', (strip_tags($string)));
+
+            // Exchange double quotes and remove white spaces for the description
+            $string = str_replace('"', "'", $string);
+            $string = preg_replace('@\s+@', ' ', $string);
+
+            // Remove all bad UTF8 characters with the help of the UTF8 library
+            jimport('phputf8.utils.bad');
+            $string = utf8_bad_strip($string);
+
+            $string_clean = trim(htmlspecialchars($string));
+        }
+
+        return $string_clean;
     }
 
     /**

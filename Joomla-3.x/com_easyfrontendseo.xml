@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.2" method="upgrade">
     <name>COM_EASYFRONTENDSEO</name>
-    <version>3-2</version>
-    <creationDate>2014-02-13</creationDate>
+    <version>3-3</version>
+    <creationDate>2014-10-24</creationDate>
     <license>http://www.gnu.org/licenses/gpl-3.0</license>
     <copyright>Copyright 2014 Viktor Vogel. All rights reserved.</copyright>
     <author>Viktor Vogel</author>

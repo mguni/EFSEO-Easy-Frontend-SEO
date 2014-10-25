@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 defined('_JEXEC') or die('Restricted access');
-define('_EASYFRONTENDSEO_VERSION', '3-2');
+define('_EASYFRONTENDSEO_VERSION', '3-3');
 
 require_once JPATH_COMPONENT.'/controller.php';
 
