@@ -29,6 +29,7 @@
     margin: auto auto 5px !important;
     border-radius: 5px 5px 5px 5px;
     padding: 10px;
+    width: 30px;
 }
 
 #easyfrontendseo h1 {
@@ -108,6 +109,7 @@
     position: fixed;
     z-index: 9999;
     border-radius: 5px 5px 5px 5px;
+    width: 30px;
 }
 
 #easyfrontendseo_lightbox_button_0 a:hover {
@@ -123,6 +125,7 @@
     position: fixed;
     z-index: 9999;
     border-radius: 5px 5px 5px 5px;
+    width: 30px;
 }
 
 #easyfrontendseo_lightbox_button_1 a:hover {
@@ -138,6 +141,7 @@
     position: fixed;
     z-index: 9999;
     border-radius: 5px 5px 5px 5px;
+    width: 30px;
 }
 
 #easyfrontendseo_lightbox_button_2 a:hover {
@@ -153,6 +157,7 @@
     position: fixed;
     z-index: 9999;
     border-radius: 5px 5px 5px 5px;
+    width: 30px;
 }
 
 #easyfrontendseo_lightbox_button_3 a:hover {
